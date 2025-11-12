@@ -9,42 +9,26 @@ import {
   faBoxOpen
 } from '@fortawesome/free-solid-svg-icons'
 import { useAuth } from '../../context/AuthContext'
+import { mockProducts } from '../../data/Products'
 import { formatPrice } from '../../utils/formatters'
 import './AdminDashboard.css'
 
 function AdminDashboard() {
   const { user, logout } = useAuth()
   
-  // Estado inicial con productos de ejemplo
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      brand: 'Nike',
-      model: 'Air Max 270',
-      category: 'Hombre',
-      price: 3299,
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop',
-      description: 'Diseño revolucionario con amortiguación Air Max visible. Perfecto para uso diario y deportivo.'
-    },
-    {
-      id: 2,
-      brand: 'Adidas',
-      model: 'Ultraboost 22',
-      category: 'Hombre',
-      price: 2899,
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop',
-      description: 'Tecnología Boost para máxima comodidad. Ideal para correr y actividades diarias.'
-    },
-    {
-      id: 3,
-      brand: 'Nike',
-      model: 'Air Force 1',
-      category: 'Mujer',
-      price: 2599,
-      image: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=500&h=500&fit=crop',
-      description: 'Clásico absoluto de Nike. Perfecto para combinar con cualquier outfit.'
-    }
-  ])
+  // Estado inicial con productos importados de Products.js
+  const [products, setProducts] = useState(() => {
+    // Mapear los productos para asegurar que tengan todos los campos necesarios
+    return mockProducts.map(product => ({
+      id: product.id,
+      brand: product.brand || '',
+      model: product.model || '',
+      category: product.category || '',
+      price: product.price || 0,
+      image: Array.isArray(product.images) ? product.images[0] : product.image,
+      description: product.description || ''
+    }))
+  })
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
@@ -181,9 +165,10 @@ function AdminDashboard() {
       ))
       alert('✓ Producto actualizado exitosamente')
     } else {
-      // Crear nuevo producto
+      // Crear nuevo producto con ID único
+      const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
       const newProduct = {
-        id: Math.max(0, ...products.map(p => p.id)) + 1,
+        id: newId,
         brand: formData.brand,
         model: formData.model,
         category: formData.category,
