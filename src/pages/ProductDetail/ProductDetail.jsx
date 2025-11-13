@@ -3,10 +3,11 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
   faShoppingCart, 
-  faCheck
+  faCheck,
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons'
 import { useCart } from '../../context/CartContext'
-import { getProductById, getPriceWithDiscount } from '../../data/Products'
+import { getAllProducts } from '../../utils/productService'
 import { formatPrice } from '../../utils/formatters'
 import './ProductDetail.css'
 
@@ -20,46 +21,90 @@ function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   // Cargar producto al montar o cambiar ID
   useEffect(() => {
-    const productData = getProductById(parseInt(id))
-    
-    if (!productData) {
-      navigate('/') // Redirigir si no existe el producto
-      return
-    }
-    
-    setProduct(productData)
-    setSelectedImage(0)
-    setSelectedSize(null)
-    setQuantity(1)
+    loadProduct()
   }, [id, navigate])
+
+  const loadProduct = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const allProducts = await getAllProducts()
+      const found = allProducts.find(p => p.id === id)
+      
+      if (!found) {
+        setError('Producto no encontrado')
+        setTimeout(() => navigate('/'), 2000)
+        return
+      }
+      
+      setProduct(found)
+      setSelectedImage(0)
+      setSelectedSize(null)
+      setQuantity(1)
+    } catch (err) {
+      console.error('Error al cargar producto:', err)
+      setError('Error al cargar el producto')
+      setTimeout(() => navigate('/'), 2000)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Scroll to top al cargar
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [id])
 
-  if (!product) {
+  if (loading) {
     return (
       <div className="product-detail-loading">
-        <div className="container">
-          <p>Cargando producto...</p>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <FontAwesomeIcon 
+              icon={faSpinner} 
+              spin 
+              style={{ fontSize: '48px', color: '#3a86ff', marginBottom: '20px', display: 'block' }}
+            />
+            <p style={{ fontSize: '18px', color: '#6c757d' }}>Cargando producto...</p>
+          </div>
         </div>
       </div>
     )
   }
 
-  // Calcular precio final
-  const finalPrice = product.discount > 0 
-    ? getPriceWithDiscount(product)
-    : product.price
+  if (error || !product) {
+    return (
+      <div className="product-detail-loading">
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '18px', color: '#ef4444', marginBottom: '20px' }}>
+              {error || 'Producto no encontrado'}
+            </p>
+            <p style={{ fontSize: '14px', color: '#6c757d' }}>Redirigiendo...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Calcular precio final con descuento
+  const getPriceWithDiscount = (product) => {
+    if (!product.discount || product.discount === 0) return product.price
+    return Math.round(product.price * (1 - product.discount / 100))
+  }
+
+  const finalPrice = getPriceWithDiscount(product)
 
   // Preparar imágenes
   const images = Array.isArray(product.images) 
     ? product.images 
-    : [product.image]
+    : (product.image ? [product.image] : [])
 
   const productName = product.brand 
     ? `${product.brand} ${product.model}` 
@@ -78,7 +123,7 @@ function ProductDetail() {
       id: product.id,
       name: productName,
       price: finalPrice,
-      image: images[0],
+      image: images[0] || 'https://via.placeholder.com/300',
       category: product.category,
       size: selectedSize,
       quantity: quantity
@@ -115,7 +160,7 @@ function ProductDetail() {
                 <span className="detail-badge detail-badge--new">NUEVO</span>
               )}
               <img 
-                src={images[selectedImage]} 
+                src={images[selectedImage] || 'https://via.placeholder.com/600'} 
                 alt={`${productName} - Vista ${selectedImage + 1}`}
                 className="gallery-main-image"
               />

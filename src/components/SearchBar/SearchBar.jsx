@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { mockProducts } from '../../data/Products'
+import { getAllProducts } from '../../utils/productService'
 import { searchProductsWithRelevance } from '../../utils/search'
 import './SearchBar.css'
 
@@ -12,6 +12,24 @@ function SearchBar() {
   const [suggestions, setSuggestions] = useState([])
   const [isOpen, setIsOpen] = useState(false)
   const [debounceTimer, setDebounceTimer] = useState(null)
+  const [allProducts, setAllProducts] = useState([])
+  const [productsLoaded, setProductsLoaded] = useState(false)
+
+  // Cargar todos los productos al montar
+  useEffect(() => {
+    loadAllProducts()
+  }, [])
+
+  const loadAllProducts = async () => {
+    try {
+      const products = await getAllProducts()
+      setAllProducts(products)
+      setProductsLoaded(true)
+    } catch (error) {
+      console.error('Error al cargar productos:', error)
+      setProductsLoaded(true)
+    }
+  }
 
   // Actualizar sugerencias con debounce
   const handleSearchChange = useCallback((value) => {
@@ -25,14 +43,19 @@ function SearchBar() {
       return
     }
 
+    if (!productsLoaded) {
+      setIsOpen(false)
+      return
+    }
+
     const timer = setTimeout(() => {
-      const results = searchProductsWithRelevance(mockProducts, value)
-      setSuggestions(results.slice(0, 8)) // Máximo 8 sugerencias
+      const results = searchProductsWithRelevance(allProducts, value)
+      setSuggestions(results.slice(0, 8))
       setIsOpen(true)
     }, 200)
 
     setDebounceTimer(timer)
-  }, [debounceTimer])
+  }, [debounceTimer, allProducts, productsLoaded])
 
   // Limpiar búsqueda
   const handleClear = useCallback(() => {
@@ -79,6 +102,12 @@ function SearchBar() {
     return product.brand 
       ? `${product.brand} ${product.model}` 
       : product.name
+  }
+
+  const productImage = (product) => {
+    return Array.isArray(product.images) 
+      ? product.images[0]
+      : product.image
   }
 
   return (
@@ -129,7 +158,7 @@ function SearchBar() {
                     aria-label={`Ver ${productName(product)}`}
                   >
                     <img 
-                      src={Array.isArray(product.images) ? product.images[0] : product.image}
+                      src={productImage(product)}
                       alt={productName(product)}
                       className="search-bar__suggestion-image"
                       loading="lazy"
@@ -162,7 +191,7 @@ function SearchBar() {
         )}
 
         {/* Mensaje cuando no hay resultados */}
-        {isOpen && searchTerm && suggestions.length === 0 && (
+        {isOpen && searchTerm && suggestions.length === 0 && productsLoaded && (
           <div className="search-bar__no-results">
             <p>No encontramos productos para "{searchTerm}"</p>
           </div>
