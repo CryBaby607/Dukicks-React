@@ -1,14 +1,35 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getFeaturedProducts } from '../../data/Products'
+import { getFeaturedProducts } from '../../utils/productService'
 import ProductCard from '../../components/ProductCard/ProductCard'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import './Home.css'
 
 function Home() {
   const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [featuredProducts, setFeaturedProducts] = useState([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Obtener productos destacados desde el archivo de datos
-  const featuredProducts = getFeaturedProducts()
+  // Cargar productos destacados al montar
+  useEffect(() => {
+    loadFeaturedProducts()
+  }, [])
+
+  const loadFeaturedProducts = async () => {
+    try {
+      setLoadingProducts(true)
+      setError(null)
+      const products = await getFeaturedProducts()
+      setFeaturedProducts(products)
+    } catch (err) {
+      console.error('Error cargando productos destacados:', err)
+      setError('Error al cargar los productos')
+    } finally {
+      setLoadingProducts(false)
+    }
+  }
 
   // Datos de categorías
   const categories = [
@@ -69,18 +90,27 @@ function Home() {
           <div className="section-header">
             <h2 className="section-title">Productos Destacados</h2>
           </div>
-          
-          {/* Grid con ProductCard */}
-          <div className="products-grid">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                variant="featured"
-                showCategory={true}
-              />
-            ))}
-          </div>
+          {/* Products Grid */}
+          {!loadingProducts && !error && (
+            <div className="products-grid">
+              {featuredProducts.length > 0 ? (
+                featuredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    variant="featured"
+                    showCategory={true}
+                  />
+                ))
+              ) : (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+                  <p style={{ fontSize: '18px', color: '#6c757d' }}>
+                    No hay productos destacados disponibles
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
