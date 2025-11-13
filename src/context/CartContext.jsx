@@ -1,10 +1,73 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import { collection, doc, setDoc, getDoc } from 'firebase/firestore'
+import { db } from '../config/firebase'
+import { useAuth } from './AuthContext'
 
-// Crear el contexto
 const CartContext = createContext()
 
 export const CartProvider = ({ children }) => {
+  const { user } = useAuth()
   const [cartItems, setCartItems] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  // Cargar carrito cuando el usuario se autentica o cambios
+  useEffect(() => {
+    if (user) {
+      loadUserCart()
+    } else {
+      // Cargar carrito local si no hay usuario autenticado
+      const savedCart = localStorage.getItem('dukicks_cart')
+      setCartItems(savedCart ? JSON.parse(savedCart) : [])
+    }
+  }, [user])
+
+  // Guardar carrito cuando cambia (solo si hay usuario)
+  useEffect(() => {
+    if (user && cartItems.length > 0) {
+      saveUserCart(cartItems)
+    } else if (!user) {
+      // Guardar en localStorage si no hay usuario
+      localStorage.setItem('dukicks_cart', JSON.stringify(cartItems))
+    }
+  }, [cartItems, user])
+
+  // Cargar carrito de Firestore
+  const loadUserCart = async () => {
+    if (!user) return
+
+    try {
+      setLoading(true)
+      const cartRef = doc(db, 'users', user.uid, 'cart', 'items')
+      const cartSnap = await getDoc(cartRef)
+
+      if (cartSnap.exists()) {
+        setCartItems(cartSnap.data().items || [])
+      } else {
+        setCartItems([])
+      }
+    } catch (error) {
+      console.error('Error al cargar carrito:', error)
+      setCartItems([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Guardar carrito en Firestore
+  const saveUserCart = async (items) => {
+    if (!user) return
+
+    try {
+      const cartRef = doc(db, 'users', user.uid, 'cart', 'items')
+      await setDoc(cartRef, {
+        items,
+        updatedAt: new Date(),
+        userId: user.uid
+      })
+    } catch (error) {
+      console.error('Error al guardar carrito:', error)
+    }
+  }
 
   // ACCIONES DEL CARRITO
   const addToCart = (product) => {
@@ -47,6 +110,7 @@ export const CartProvider = ({ children }) => {
       value={{
         cartItems,
         isEmpty,
+        loading,
         addToCart,
         updateQuantity,
         removeFromCart,

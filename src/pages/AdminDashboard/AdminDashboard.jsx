@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
   faPlus, 
@@ -6,55 +6,68 @@ import {
   faTrash, 
   faSignOutAlt, 
   faTimes,
-  faBoxOpen
+  faBoxOpen,
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons'
 import { useAuth } from '../../context/AuthContext'
-import { mockProducts } from '../../data/Products'
+import { useNavigate } from 'react-router-dom'
+import { 
+  getAllProducts, 
+  createProduct, 
+  updateProduct, 
+  deleteProduct 
+} from '../../utils/productService'
 import { formatPrice } from '../../utils/formatters'
 import './AdminDashboard.css'
 
 function AdminDashboard() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
   
-  // Estado inicial con productos importados de Products.js
-  const [products, setProducts] = useState(() => {
-    return mockProducts.map(product => ({
-      id: product.id,
-      brand: product.brand || '',
-      model: product.model || '',
-      category: product.category || '',
-      price: product.price || 0,
-      discount: product.discount || 0,
-      image: Array.isArray(product.images) ? product.images[0] : product.image,
-      images: product.images || [],
-      description: product.description || '',
-      isNew: product.isNew || false,
-      inStock: product.inStock !== false,
-      sizes: product.sizes || []
-    }))
-  })
-
+  const [products, setProducts] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState({})
+  
   const [formData, setFormData] = useState({
     brand: '',
     model: '',
     category: 'Hombre',
     price: '',
-    discount: '',
+    discount: '0',
     description: '',
     image: '',
     isNew: false,
     inStock: true,
     sizes: ''
   })
-  const [errors, setErrors] = useState({})
+
+  // Cargar productos al montar
+  useEffect(() => {
+    loadProducts()
+  }, [])
+
+  // Cargar productos de Firestore
+  const loadProducts = async () => {
+    try {
+      setLoading(true)
+      const allProducts = await getAllProducts()
+      setProducts(allProducts)
+    } catch (error) {
+      console.error('Error al cargar productos:', error)
+      alert('Error al cargar productos: ' + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Cerrar sesión
   const handleLogout = () => {
     if (window.confirm('¿Estás seguro de cerrar sesión?')) {
       logout()
-      window.location.href = '/login'
+      navigate('/login', { replace: true })
     }
   }
 
@@ -66,7 +79,7 @@ function AdminDashboard() {
       model: '',
       category: 'Hombre',
       price: '',
-      discount: '',
+      discount: '0',
       description: '',
       image: '',
       isNew: false,
@@ -85,9 +98,9 @@ function AdminDashboard() {
       model: product.model,
       category: product.category,
       price: product.price.toString(),
-      discount: product.discount?.toString() || '0',
+      discount: (product.discount || 0).toString(),
       description: product.description,
-      image: product.image,
+      image: product.image || product.images?.[0] || '',
       isNew: product.isNew || false,
       inStock: product.inStock !== false,
       sizes: Array.isArray(product.sizes) ? product.sizes.join(', ') : ''
@@ -105,7 +118,7 @@ function AdminDashboard() {
       model: '',
       category: 'Hombre',
       price: '',
-      discount: '',
+      discount: '0',
       description: '',
       image: '',
       isNew: false,
@@ -122,7 +135,6 @@ function AdminDashboard() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
-    // Limpiar error del campo cuando el usuario empieza a escribir
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -148,7 +160,7 @@ function AdminDashboard() {
     } else {
       const price = parseFloat(formData.price)
       if (isNaN(price) || price <= 0) {
-        newErrors.price = 'Por favor ingresa un precio válido (mayor a 0)'
+        newErrors.price = 'Ingresa un precio válido (mayor a 0)'
       }
     }
 
@@ -167,7 +179,7 @@ function AdminDashboard() {
     return Object.keys(newErrors).length === 0
   }
 
-  // Parsear tallas desde string
+  // Parsear tallas
   const parseSizes = (sizesString) => {
     if (!sizesString.trim()) return []
     return sizesString
@@ -178,39 +190,18 @@ function AdminDashboard() {
   }
 
   // Enviar formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!validateForm()) return
 
-    const price = parseFloat(formData.price)
-    const discount = formData.discount ? parseFloat(formData.discount) : 0
+    setSaving(true)
 
-    if (editingProduct) {
-      // Editar producto
-      setProducts(prev => prev.map(p => 
-        p.id === editingProduct.id
-          ? {
-              ...p,
-              brand: formData.brand,
-              model: formData.model,
-              category: formData.category,
-              price: price,
-              discount: discount,
-              image: formData.image || p.image,
-              description: formData.description,
-              isNew: formData.isNew,
-              inStock: formData.inStock,
-              sizes: parseSizes(formData.sizes)
-            }
-          : p
-      ))
-      alert('✓ Producto actualizado exitosamente')
-    } else {
-      // Crear nuevo producto con ID único
-      const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
-      const newProduct = {
-        id: newId,
+    try {
+      const price = parseFloat(formData.price)
+      const discount = formData.discount ? parseFloat(formData.discount) : 0
+
+      const productData = {
         brand: formData.brand,
         model: formData.model,
         category: formData.category,
@@ -221,20 +212,43 @@ function AdminDashboard() {
         description: formData.description,
         isNew: formData.isNew,
         inStock: formData.inStock,
-        sizes: parseSizes(formData.sizes)
+        sizes: parseSizes(formData.sizes),
+        type: 'Tenis',
+        isFeatured: false
       }
-      setProducts(prev => [...prev, newProduct])
-      alert('✓ Producto agregado exitosamente')
-    }
 
-    closeModal()
+      if (editingProduct) {
+        // Actualizar producto
+        await updateProduct(editingProduct.id, productData)
+        alert('✓ Producto actualizado exitosamente')
+      } else {
+        // Crear nuevo producto
+        await createProduct(productData)
+        alert('✓ Producto agregado exitosamente')
+      }
+
+      // Recargar productos
+      await loadProducts()
+      closeModal()
+    } catch (error) {
+      console.error('Error al guardar producto:', error)
+      alert('Error al guardar producto: ' + error.message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   // Eliminar producto
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-      setProducts(prev => prev.filter(p => p.id !== id))
-      alert('✓ Producto eliminado exitosamente')
+      try {
+        await deleteProduct(id)
+        alert('✓ Producto eliminado exitosamente')
+        await loadProducts()
+      } catch (error) {
+        console.error('Error al eliminar producto:', error)
+        alert('Error al eliminar producto: ' + error.message)
+      }
     }
   }
 
@@ -247,6 +261,27 @@ function AdminDashboard() {
     conDescuento: products.filter(p => p.discount > 0).length
   }
 
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8f9fa'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <FontAwesomeIcon 
+            icon={faSpinner} 
+            spin 
+            style={{ fontSize: '48px', color: '#3a86ff', marginBottom: '20px' }}
+          />
+          <p style={{ fontSize: '18px', color: '#6c757d' }}>Cargando productos...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="admin-dashboard">
       
@@ -256,16 +291,16 @@ function AdminDashboard() {
           <div className="admin-header-content">
             <div className="admin-title-section">
               <h1 className="admin-title">Panel de Administración</h1>
-              <p className="admin-subtitle">Gestiona tus productos de forma fácil y rápida</p>
+              <p className="admin-subtitle">Gestiona tus productos en Firestore</p>
             </div>
 
             <div className="admin-user-info">
               <div className="user-avatar">
-                {user?.name?.charAt(0) || 'A'}
+                {user?.email?.charAt(0).toUpperCase() || 'A'}
               </div>
               <div className="user-details">
-                <p className="user-name">{user?.name || 'Administrador'}</p>
-                <p className="user-role">{user?.role || 'Admin'}</p>
+                <p className="user-name">{user?.email || 'Administrador'}</p>
+                <p className="user-role">Admin</p>
               </div>
               <button onClick={handleLogout} className="btn-logout" aria-label="Cerrar sesión">
                 <FontAwesomeIcon icon={faSignOutAlt} />
@@ -332,7 +367,7 @@ function AdminDashboard() {
                     <tr key={product.id}>
                       <td className="product-image-cell">
                         <img 
-                          src={product.image} 
+                          src={product.image || product.images?.[0]} 
                           alt={product.model}
                           className="product-thumbnail"
                           loading="lazy"
@@ -427,11 +462,8 @@ function AdminDashboard() {
               <div className="modal-body">
                 <div className="product-form">
                   
-                  {/* Marca */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="brand">
-                      Marca *
-                    </label>
+                    <label className="form-label" htmlFor="brand">Marca *</label>
                     <input
                       id="brand"
                       type="text"
@@ -440,21 +472,12 @@ function AdminDashboard() {
                       placeholder="Nike, Adidas, etc."
                       value={formData.brand}
                       onChange={handleInputChange}
-                      aria-invalid={!!errors.brand}
-                      aria-describedby={errors.brand ? 'brand-error' : undefined}
                     />
-                    {errors.brand && (
-                      <span id="brand-error" style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)', marginTop: '4px' }}>
-                        {errors.brand}
-                      </span>
-                    )}
+                    {errors.brand && <span style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)' }}>{errors.brand}</span>}
                   </div>
 
-                  {/* Modelo */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="model">
-                      Modelo *
-                    </label>
+                    <label className="form-label" htmlFor="model">Modelo *</label>
                     <input
                       id="model"
                       type="text"
@@ -463,21 +486,12 @@ function AdminDashboard() {
                       placeholder="Air Max 270"
                       value={formData.model}
                       onChange={handleInputChange}
-                      aria-invalid={!!errors.model}
-                      aria-describedby={errors.model ? 'model-error' : undefined}
                     />
-                    {errors.model && (
-                      <span id="model-error" style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)', marginTop: '4px' }}>
-                        {errors.model}
-                      </span>
-                    )}
+                    {errors.model && <span style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)' }}>{errors.model}</span>}
                   </div>
 
-                  {/* Categoría */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="category">
-                      Categoría
-                    </label>
+                    <label className="form-label" htmlFor="category">Categoría</label>
                     <select
                       id="category"
                       name="category"
@@ -491,11 +505,8 @@ function AdminDashboard() {
                     </select>
                   </div>
 
-                  {/* Precio */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="price">
-                      Precio (MXN) *
-                    </label>
+                    <label className="form-label" htmlFor="price">Precio (MXN) *</label>
                     <input
                       id="price"
                       type="number"
@@ -506,21 +517,12 @@ function AdminDashboard() {
                       step="1"
                       value={formData.price}
                       onChange={handleInputChange}
-                      aria-invalid={!!errors.price}
-                      aria-describedby={errors.price ? 'price-error' : undefined}
                     />
-                    {errors.price && (
-                      <span id="price-error" style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)', marginTop: '4px' }}>
-                        {errors.price}
-                      </span>
-                    )}
+                    {errors.price && <span style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)' }}>{errors.price}</span>}
                   </div>
 
-                  {/* Descuento */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="discount">
-                      Descuento (%) (Opcional)
-                    </label>
+                    <label className="form-label" htmlFor="discount">Descuento (%)</label>
                     <input
                       id="discount"
                       type="number"
@@ -531,21 +533,11 @@ function AdminDashboard() {
                       max="100"
                       value={formData.discount}
                       onChange={handleInputChange}
-                      aria-invalid={!!errors.discount}
-                      aria-describedby={errors.discount ? 'discount-error' : undefined}
                     />
-                    {errors.discount && (
-                      <span id="discount-error" style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)', marginTop: '4px' }}>
-                        {errors.discount}
-                      </span>
-                    )}
                   </div>
 
-                  {/* URL de Imagen */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="image">
-                      URL de Imagen (Opcional)
-                    </label>
+                    <label className="form-label" htmlFor="image">URL de Imagen</label>
                     <input
                       id="image"
                       type="url"
@@ -557,11 +549,8 @@ function AdminDashboard() {
                     />
                   </div>
 
-                  {/* Tallas */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="sizes">
-                      Tallas (Separadas por coma, ej: 36, 37, 38)
-                    </label>
+                    <label className="form-label" htmlFor="sizes">Tallas (separadas por coma)</label>
                     <input
                       id="sizes"
                       type="text"
@@ -573,11 +562,8 @@ function AdminDashboard() {
                     />
                   </div>
 
-                  {/* Descripción */}
                   <div className="form-group">
-                    <label className="form-label" htmlFor="description">
-                      Descripción *
-                    </label>
+                    <label className="form-label" htmlFor="description">Descripción *</label>
                     <textarea
                       id="description"
                       name="description"
@@ -585,17 +571,10 @@ function AdminDashboard() {
                       placeholder="Describe tu producto aquí..."
                       value={formData.description}
                       onChange={handleInputChange}
-                      aria-invalid={!!errors.description}
-                      aria-describedby={errors.description ? 'description-error' : undefined}
                     />
-                    {errors.description && (
-                      <span id="description-error" style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)', marginTop: '4px' }}>
-                        {errors.description}
-                      </span>
-                    )}
+                    {errors.description && <span style={{ color: 'var(--error)', fontSize: 'var(--fs-xs)' }}>{errors.description}</span>}
                   </div>
 
-                  {/* Checkbox: Es Nuevo */}
                   <div className="form-group">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', margin: 0 }}>
                       <input
@@ -604,13 +583,10 @@ function AdminDashboard() {
                         checked={formData.isNew}
                         onChange={handleInputChange}
                       />
-                      <span style={{ fontSize: 'var(--fs-base)', fontWeight: 'var(--fw-normal)', color: 'var(--primary)' }}>
-                        Marcar como NUEVO
-                      </span>
+                      <span>Marcar como NUEVO</span>
                     </label>
                   </div>
 
-                  {/* Checkbox: En Stock */}
                   <div className="form-group">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', margin: 0 }}>
                       <input
@@ -619,9 +595,7 @@ function AdminDashboard() {
                         checked={formData.inStock}
                         onChange={handleInputChange}
                       />
-                      <span style={{ fontSize: 'var(--fs-base)', fontWeight: 'var(--fw-normal)', color: 'var(--primary)' }}>
-                        Disponible en stock
-                      </span>
+                      <span>Disponible en stock</span>
                     </label>
                   </div>
                 </div>
@@ -632,14 +606,23 @@ function AdminDashboard() {
                   type="button"
                   onClick={closeModal} 
                   className="btn-cancel"
+                  disabled={saving}
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit" 
                   className="btn-save"
+                  disabled={saving}
                 >
-                  {editingProduct ? 'Guardar Cambios' : 'Crear Producto'}
+                  {saving ? (
+                    <>
+                      <FontAwesomeIcon icon={faSpinner} spin />
+                      Guardando...
+                    </>
+                  ) : (
+                    editingProduct ? 'Guardar Cambios' : 'Crear Producto'
+                  )}
                 </button>
               </div>
             </form>
