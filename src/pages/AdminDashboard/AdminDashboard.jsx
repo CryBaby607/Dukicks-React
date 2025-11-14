@@ -255,10 +255,10 @@ function AdminDashboard() {
   // Estadísticas
   const stats = {
     total: products.length,
-    hombre: products.filter(p => p.category === 'Hombre').length,
-    mujer: products.filter(p => p.category === 'Mujer').length,
-    gorras: products.filter(p => p.category === 'Gorras').length,
-    conDescuento: products.filter(p => p.discount > 0).length
+    men: products.filter(p => p.category === 'Hombre').length,
+    women: products.filter(p => p.category === 'Mujer').length,
+    caps: products.filter(p => p.category === 'Gorras').length,
+    withDiscount: products.filter(p => p.discount > 0).length
   }
 
   if (loading) {
@@ -323,19 +323,19 @@ function AdminDashboard() {
                 <span className="stat-label">Productos Total</span>
               </div>
               <div className="stat-card">
-                <span className="stat-value">{stats.hombre}</span>
+                <span className="stat-value">{stats.men}</span>
                 <span className="stat-label">Hombre</span>
               </div>
               <div className="stat-card">
-                <span className="stat-value">{stats.mujer}</span>
+                <span className="stat-value">{stats.women}</span>
                 <span className="stat-label">Mujer</span>
               </div>
               <div className="stat-card">
-                <span className="stat-value">{stats.gorras}</span>
+                <span className="stat-value">{stats.caps}</span>
                 <span className="stat-label">Gorras</span>
               </div>
               <div className="stat-card">
-                <span className="stat-value">{stats.conDescuento}</span>
+                <span className="stat-value">{stats.withDiscount}</span>
                 <span className="stat-label">Con Descuento</span>
               </div>
             </div>

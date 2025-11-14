@@ -8,7 +8,6 @@ function ProductCard({
   showCategory = true
 }) {
 
-  // ✅ MEJORADO: Usar función centralizada de formatters
   const finalPrice = getFinalPrice(product)
     
   const productName = product.brand 
