@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEnvelope, faLock, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
-import { useAuth } from '../../context/AuthContext'
+import { useAdmin } from '../../context/AdminContext'
 import './Login.css'
 
 function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login } = useAdmin()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

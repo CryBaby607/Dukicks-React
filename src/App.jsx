@@ -5,8 +5,8 @@ import './styles/typography.css'
 import './styles/global.css'
 
 import { CartProvider } from './context/CartContext'
-import { AuthProvider } from './context/AuthContext'
-import PrivateRoute from './components/PrivateRoute/PrivateRoute'
+import { AdminProvider } from './context/AdminContext'
+import AdminRoute from './components/AdminRoute/AdminRoute'
 
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
@@ -26,7 +26,7 @@ export default function App() {
   const hideLayout = location.pathname === '/login' || location.pathname.startsWith('/admin')
 
   return (
-    <AuthProvider>
+    <AdminProvider>
       <CartProvider>
         <div>
           {!hideLayout && <Header />}
@@ -39,16 +39,16 @@ export default function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               
-              {/* Ruta de Login */}
+              {/* Ruta de Login (solo para admin) */}
               <Route path="/login" element={<Login />} />
               
               {/* Ruta protegida del Admin */}
               <Route 
                 path="/admin" 
                 element={
-                  <PrivateRoute>
+                  <AdminRoute>
                     <AdminDashboard />
-                  </PrivateRoute>
+                  </AdminRoute>
                 } 
               />
             </Routes>
@@ -56,6 +56,6 @@ export default function App() {
           {!hideLayout && <Footer />}
         </div>
       </CartProvider>
-    </AuthProvider>
+    </AdminProvider>
   )
 }

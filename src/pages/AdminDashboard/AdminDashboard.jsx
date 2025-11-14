@@ -9,7 +9,7 @@ import {
   faBoxOpen,
   faSpinner
 } from '@fortawesome/free-solid-svg-icons'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/AdminContext'
 import { useNavigate } from 'react-router-dom'
 import { 
   getAllProducts, 

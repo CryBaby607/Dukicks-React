@@ -2,34 +2,38 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { 
   signInWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged,
-  createUserWithEmailAndPassword 
+  onAuthStateChanged
 } from 'firebase/auth'
 import { auth } from '../config/firebase'
 
-const AuthContext = createContext()
+const AdminContext = createContext()
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
+export const AdminProvider = ({ children }) => {
+  const [adminUser, setAdminUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   // Monitorear cambios de autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
+      if (currentUser) {
+        // Verificar si es admin (puedes usar claims personalizados en producción)
+        setAdminUser(currentUser)
+      } else {
+        setAdminUser(null)
+      }
       setLoading(false)
     })
 
     return unsubscribe
   }, [])
 
-  // Login con Firebase
+  // Login para admin
   const login = async (email, password) => {
     try {
       setError(null)
       const result = await signInWithEmailAndPassword(auth, email, password)
-      setUser(result.user)
+      setAdminUser(result.user)
       return result.user
     } catch (error) {
       const errorMessage = handleFirebaseError(error.code)
@@ -38,26 +42,12 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Registrar nuevo usuario (opcional)
-  const register = async (email, password) => {
-    try {
-      setError(null)
-      const result = await createUserWithEmailAndPassword(auth, email, password)
-      setUser(result.user)
-      return result.user
-    } catch (error) {
-      const errorMessage = handleFirebaseError(error.code)
-      setError(errorMessage)
-      throw new Error(errorMessage)
-    }
-  }
-
-  // Logout con Firebase
+  // Logout
   const logout = async () => {
     try {
       setError(null)
       await signOut(auth)
-      setUser(null)
+      setAdminUser(null)
     } catch (error) {
       const errorMessage = handleFirebaseError(error.code)
       setError(errorMessage)
@@ -65,8 +55,8 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Verificar si está autenticado
-  const isAuthenticated = () => !!user
+  // Verificar si hay admin autenticado
+  const isAdminAuthenticated = () => !!adminUser
 
   // Manejador de errores de Firebase
   const handleFirebaseError = (code) => {
@@ -85,27 +75,26 @@ export const AuthProvider = ({ children }) => {
   }
 
   const value = {
-    user,
+    adminUser,
     loading,
     error,
     login,
-    register,
     logout,
-    isAuthenticated,
+    isAdminAuthenticated,
     setError
   }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AdminContext.Provider value={value}>
       {children}
-    </AuthContext.Provider>
+    </AdminContext.Provider>
   )
 }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext)
+export const useAdmin = () => {
+  const context = useContext(AdminContext)
   if (!context) {
-    throw new Error('useAuth debe usarse dentro de AuthProvider')
+    throw new Error('useAdmin debe usarse dentro de AdminProvider')
   }
   return context
 }

@@ -1,125 +1,97 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { collection, doc, setDoc, getDoc } from 'firebase/firestore'
-import { db } from '../config/firebase'
-import { useAuth } from './AuthContext'
 
 const CartContext = createContext()
 
 export const CartProvider = ({ children }) => {
-  const { user } = useAuth()
-  const [cartItems, setCartItems] = useState([])
-  const [loading, setLoading] = useState(false)
-
-  // Cargar carrito cuando el usuario se autentica o cambios
-  useEffect(() => {
-    if (user) {
-      loadUserCart()
-    } else {
-      // Cargar carrito local si no hay usuario autenticado
-      const savedCart = localStorage.getItem('dukicks_cart')
-      setCartItems(savedCart ? JSON.parse(savedCart) : [])
+  // Estado del carrito - inicializar desde localStorage
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('dukicks_cart')
+      return saved ? JSON.parse(saved) : []
+    } catch (error) {
+      console.error('Error al cargar carrito del localStorage:', error)
+      return []
     }
-  }, [user])
+  })
 
-  // Guardar carrito cuando cambia (solo si hay usuario)
+  // Guardar en localStorage cuando cambia el carrito
   useEffect(() => {
-    if (user && cartItems.length > 0) {
-      saveUserCart(cartItems)
-    } else if (!user) {
-      // Guardar en localStorage si no hay usuario
+    try {
       localStorage.setItem('dukicks_cart', JSON.stringify(cartItems))
-    }
-  }, [cartItems, user])
-
-  // Cargar carrito de Firestore
-  const loadUserCart = async () => {
-    if (!user) return
-
-    try {
-      setLoading(true)
-      const cartRef = doc(db, 'users', user.uid, 'cart', 'items')
-      const cartSnap = await getDoc(cartRef)
-
-      if (cartSnap.exists()) {
-        setCartItems(cartSnap.data().items || [])
-      } else {
-        setCartItems([])
-      }
     } catch (error) {
-      console.error('Error al cargar carrito:', error)
-      setCartItems([])
-    } finally {
-      setLoading(false)
+      console.error('Error al guardar carrito en localStorage:', error)
     }
-  }
+  }, [cartItems])
 
-  // Guardar carrito en Firestore
-  const saveUserCart = async (items) => {
-    if (!user) return
-
-    try {
-      const cartRef = doc(db, 'users', user.uid, 'cart', 'items')
-      await setDoc(cartRef, {
-        items,
-        updatedAt: new Date(),
-        userId: user.uid
-      })
-    } catch (error) {
-      console.error('Error al guardar carrito:', error)
-    }
-  }
-
-  // ACCIONES DEL CARRITO
+  // Agregar producto al carrito
   const addToCart = (product) => {
     setCartItems((prevItems) => {
-      const existing = prevItems.find(item => item.id === product.id)
+      const existing = prevItems.find(item => 
+        item.id === product.id && item.size === product.size
+      )
+      
       if (existing) {
         return prevItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: Math.min(item.quantity + 1, 99) }
+          item.id === product.id && item.size === product.size
+            ? { ...item, quantity: Math.min(item.quantity + (product.quantity || 1), 99) }
             : item
         )
       }
-      return [...prevItems, { ...product, quantity: 1 }]
+      
+      return [...prevItems, { ...product, quantity: product.quantity || 1 }]
     })
   }
 
-  const updateQuantity = (productId, quantity) => {
+  // Actualizar cantidad de un producto
+  const updateQuantity = (productId, size, quantity) => {
     if (quantity < 1 || quantity > 99) return
+    
     setCartItems((prevItems) =>
       prevItems.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+        item.id === productId && item.size === size
+          ? { ...item, quantity }
+          : item
       )
     )
   }
 
-  const removeFromCart = (productId) => {
-    setCartItems((prevItems) => prevItems.filter(item => item.id !== productId))
+  // Eliminar producto del carrito
+  const removeFromCart = (productId, size) => {
+    setCartItems((prevItems) =>
+      prevItems.filter(item => !(item.id === productId && item.size === size))
+    )
   }
 
+  // Vaciar carrito completo
   const clearCart = () => setCartItems([])
 
   // CÁLCULOS DERIVADOS
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
-  const total = subtotal
-  const itemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0)
+  const subtotal = cartItems.reduce((acc, item) => {
+    return acc + (item.price * item.quantity)
+  }, 0)
+
+  const total = subtotal  // Sin impuestos/envío en este modelo
+
+  const itemCount = cartItems.reduce((acc, item) => {
+    return acc + item.quantity
+  }, 0)
+
   const isEmpty = cartItems.length === 0
 
+  const value = {
+    cartItems,
+    isEmpty,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    subtotal,
+    total,
+    itemCount,
+  }
+
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        isEmpty,
-        loading,
-        addToCart,
-        updateQuantity,
-        removeFromCart,
-        clearCart,
-        subtotal,
-        total,
-        itemCount,
-      }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   )
@@ -127,6 +99,8 @@ export const CartProvider = ({ children }) => {
 
 export const useCart = () => {
   const context = useContext(CartContext)
-  if (!context) throw new Error('useCart debe usarse dentro de CartProvider')
+  if (!context) {
+    throw new Error('useCart debe usarse dentro de CartProvider')
+  }
   return context
 }
