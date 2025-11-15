@@ -11,8 +11,7 @@ function SearchBar() {
   const navigate = useNavigate()
   const searchRef = useRef(null)
   const inputRef = useRef(null)
-  
-  // Estados
+
   const [isExpanded, setIsExpanded] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [suggestions, setSuggestions] = useState([])
@@ -20,10 +19,9 @@ function SearchBar() {
   const [allProducts, setAllProducts] = useState([])
   const [productsLoaded, setProductsLoaded] = useState(false)
 
-  // ✅ NUEVO: Usar hook de debounce
+  
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
-  // Cargar productos al montar
   useEffect(() => {
     loadAllProducts()
   }, [])
@@ -39,7 +37,6 @@ function SearchBar() {
     }
   }
 
-  // ✅ MEJORADO: Actualizar sugerencias con debounce automático
   useEffect(() => {
     if (debouncedSearchTerm.trim().length === 0) {
       setSuggestions([])
@@ -57,7 +54,6 @@ function SearchBar() {
     setIsOpen(results.length > 0)
   }, [debouncedSearchTerm, allProducts, productsLoaded])
 
-  // Expandir SearchBar y enfocar input
   const handleExpand = useCallback(() => {
     setIsExpanded(true)
     setTimeout(() => {
@@ -65,7 +61,6 @@ function SearchBar() {
     }, 200)
   }, [])
 
-  // Contraer SearchBar
   const handleCollapse = useCallback(() => {
     setIsExpanded(false)
     setSearchTerm('')
@@ -73,13 +68,11 @@ function SearchBar() {
     setIsOpen(false)
   }, [])
 
-  // Navegar a detalle del producto
   const handleSelectProduct = useCallback((productId) => {
     navigate(`/product/${productId}`)
     handleCollapse()
   }, [navigate, handleCollapse])
 
-  // Realizar búsqueda general
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     if (searchTerm.trim()) {
@@ -88,7 +81,6 @@ function SearchBar() {
     }
   }
 
-  // Cerrar al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -104,7 +96,6 @@ function SearchBar() {
     }
   }, [isExpanded, handleCollapse])
 
-  // Cerrar con tecla Escape
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && isExpanded) {
