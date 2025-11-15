@@ -10,7 +10,17 @@ import {
   faCheck,        
   faTruck,        
   faShieldAlt,    
-  faSync          
+  faSync,
+  faTrash, 
+  faEdit,
+  faPlus,
+  faSignOutAlt,
+  faBoxOpen,
+  faSpinner,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash
 } from '@fortawesome/free-solid-svg-icons'
 
 // Importar iconos de Marcas (Brands)
@@ -19,12 +29,12 @@ import {
   faInstagram,
   faTwitter,
   faTiktok,
-  faWhatsapp  
+  faWhatsapp
 } from '@fortawesome/free-brands-svg-icons'
 
-// Registrar todos los iconos en la librería
+// Registrar todos los iconos
 library.add(
-  // Iconos Solid
+  // Solid
   faMagnifyingGlass,
   faShoppingCart,
   faBars,
@@ -33,8 +43,18 @@ library.add(
   faCheck,        
   faTruck,       
   faShieldAlt,    
-  faSync,         
-  // Iconos Brands
+  faSync,
+  faTrash,
+  faEdit,
+  faPlus,
+  faSignOutAlt,
+  faBoxOpen,
+  faSpinner,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash,
+  // Brands
   faFacebookF,
   faInstagram,
   faTwitter,

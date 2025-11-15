@@ -1,6 +1,7 @@
 import { useCart } from '../../context/CartContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faWhatsapp } from '@fortawesome/free-solid-svg-icons'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
 import { formatPrice } from '../../utils/formatters'
 import { sendOrderViaWhatsApp } from '../../utils/whatsapp'
 import './Cart.css'
@@ -8,7 +9,6 @@ import './Cart.css'
 function Cart() {
   const { cartItems, updateQuantity, removeFromCart, subtotal, total, itemCount } = useCart()
 
-  // ⚠️ IMPORTANTE: Cambia este número por el de tu negocio
   const BUSINESS_PHONE = '5219611567875' // Formato: 52 + 10 dígitos
 
   const handleQuantityChange = (productId, size, newQuantity) => {
