@@ -46,6 +46,7 @@ function AdminDashboard() {
     description: '',
     image: '',
     isNew: false,
+    isFeatured: false,
     sizes: []
   })
 
@@ -84,6 +85,7 @@ function AdminDashboard() {
       description: '',
       image: '',
       isNew: false,
+      isFeatured: false,
       sizes: []
     })
     setErrors({})
@@ -101,6 +103,7 @@ function AdminDashboard() {
       description: product.description,
       image: product.image || product.images?.[0] || '',
       isNew: product.isNew || false,
+      isFeatured: product.isFeatured || false,
       sizes: Array.isArray(product.sizes) ? product.sizes : []
     })
     setErrors({})
@@ -119,6 +122,7 @@ function AdminDashboard() {
       description: '',
       image: '',
       isNew: false,
+      isFeatured: false,
       sizes: []
     })
     setErrors({})
@@ -229,17 +233,17 @@ function AdminDashboard() {
         images: [formData.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop'],
         description: formData.description,
         isNew: formData.isNew,
+        isFeatured: formData.isFeatured,
         sizes: formData.sizes,
-        type: 'Tenis',
-        isFeatured: false
+        type: 'Tenis'
       }
 
       if (editingProduct) {
         await updateProduct(editingProduct.id, productData)
-        alert('✔ Producto actualizado exitosamente')
+        alert('✓ Producto actualizado exitosamente')
       } else {
         await createProduct(productData)
-        alert('✔ Producto agregado exitosamente')
+        alert('✓ Producto agregado exitosamente')
       }
 
       await loadProducts()
@@ -256,7 +260,7 @@ function AdminDashboard() {
     if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
       try {
         await deleteProduct(id)
-        alert('✔ Producto eliminado exitosamente')
+        alert('✓ Producto eliminado exitosamente')
         await loadProducts()
       } catch (error) {
         console.error('Error al eliminar producto:', error)
@@ -336,9 +340,14 @@ function AdminDashboard() {
                       )}
                     </td>
                     <td>
-                      {product.isNew && (
-                        <span className="state-badge state-badge-new">NUEVO</span>
-                      )}
+                      <div className="state-badges-container">
+                        {product.isNew && (
+                          <span className="state-badge state-badge-new">NUEVO</span>
+                        )}
+                        {product.isFeatured && (
+                          <span className="state-badge state-badge-featured">DESTACADO</span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <div className="product-actions">
@@ -502,6 +511,18 @@ function AdminDashboard() {
                         onChange={handleInputChange}
                       />
                       <span style={{ marginLeft: '8px' }}>Marcar como NUEVO</span>
+                    </label>
+                  </div>
+
+                  <div className="form-group">
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="isFeatured"
+                        checked={formData.isFeatured}
+                        onChange={handleInputChange}
+                      />
+                      <span style={{ marginLeft: '8px' }}>Marcar como DESTACADO</span>
                     </label>
                   </div>
 

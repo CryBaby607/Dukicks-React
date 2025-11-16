@@ -600,8 +600,20 @@ input[type="checkbox"]:disabled {
   white-space: nowrap;
 }
 
+.state-badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
 .state-badge-new {
   background-color: var(--accent);
+  color: var(--white);
+}
+
+.state-badge-featured {
+  background-color: #f59e0b;
   color: var(--white);
 }
 
