@@ -21,9 +21,15 @@ import { formatPrice } from '../../utils/formatters'
 import './AdminDashboard.css'
 
 const SIZES_BY_CATEGORY = {
-  'Hombre': [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46],
-  'Mujer': [34, 35, 36, 37, 38, 39, 40, 41, 42],
-  'Gorras': ['Única']
+  Hombre: [
+    25, 25.5, 26, 26.5, 27, 27.5, 28, 28.5,
+    29, 29.5, 30, 30.5, 31, 31.5, 32
+  ],
+  Mujer: [
+    23, 23.5, 24, 24.5, 25, 25.5, 26, 26.5,
+    27, 27.5, 28, 28.5, 29
+  ],
+  Gorras: ['Única']
 }
 
 function AdminDashboard() {
@@ -36,6 +42,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState({})
+  const [showUserMenu, setShowUserMenu] = useState(false)
   
   const [formData, setFormData] = useState({
     brand: '',
@@ -53,6 +60,17 @@ function AdminDashboard() {
   useEffect(() => {
     loadProducts()
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserMenu && !event.target.closest('.user-menu-container')) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [showUserMenu])
 
   const loadProducts = async () => {
     try {
@@ -72,6 +90,10 @@ function AdminDashboard() {
       logout()
       navigate('/login', { replace: true })
     }
+  }
+
+  const toggleUserMenu = () => {
+    setShowUserMenu(!showUserMenu)
   }
 
   const openAddModal = () => {
@@ -277,14 +299,32 @@ function AdminDashboard() {
       <header className="admin-header">
         <div className="container">
           <div className="admin-header-content">
+            <div className="admin-title-section">
+              <h1 className="admin-title">Panel de Administración</h1>
+            </div>
             <div className="admin-user-info">
-              <div className="user-avatar">
-                {adminUser?.email?.charAt(0).toUpperCase() || 'A'}
+              <div className="user-menu-container">
+                <div 
+                  className="user-avatar" 
+                  onClick={toggleUserMenu}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Menú de usuario"
+                >
+                  {adminUser?.email?.charAt(0).toUpperCase() || 'A'}
+                </div>
+                {showUserMenu && (
+                  <div className="user-dropdown">
+                    <button 
+                      onClick={handleLogout} 
+                      className="dropdown-item"
+                    >
+                      <FontAwesomeIcon icon={faSignOutAlt} />
+                      <span>Cerrar Sesión</span>
+                    </button>
+                  </div>
+                )}
               </div>
-              <button onClick={handleLogout} className="btn-logout" aria-label="Cerrar sesión">
-                <FontAwesomeIcon icon={faSignOutAlt} />
-                <span>Cerrar Sesión</span>
-              </button>
             </div>
           </div>
         </div>
@@ -293,15 +333,15 @@ function AdminDashboard() {
       {/* CONTENIDO */}
       <div className="admin-content">
         <div className="container">
-          <div className="admin-actions">
-            <button onClick={openAddModal} className="btn-add-product">
-              <FontAwesomeIcon icon={faPlus} />
-              <span>Agregar Producto</span>
-            </button>
-          </div>
-
           {/* TABLA */}
           <div className="products-table-container">
+            <div className="admin-actions">
+              <h2 className="section-title">Gestión de Productos</h2>
+              <button onClick={openAddModal} className="btn-add-product">
+                <FontAwesomeIcon icon={faPlus} />
+                <span>Agregar Producto</span>
+              </button>
+            </div>
             <table className="products-table">
               <thead>
                 <tr>
@@ -311,6 +351,7 @@ function AdminDashboard() {
                   <th>Categoría</th>
                   <th>Precio</th>
                   <th>Descuento</th>
+                  <th>Tallas</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -340,6 +381,24 @@ function AdminDashboard() {
                       )}
                     </td>
                     <td>
+                      <div className="sizes-display">
+                        {product.sizes && product.sizes.length > 0 ? (
+                          product.sizes.slice(0, 3).map((size, index) => (
+                            <span key={index} className="size-tag">
+                              {size}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-muted">Sin tallas</span>
+                        )}
+                        {product.sizes && product.sizes.length > 3 && (
+                          <span className="size-tag size-tag-more">
+                            +{product.sizes.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
                       <div className="state-badges-container">
                         {product.isNew && (
                           <span className="state-badge state-badge-new">NUEVO</span>
@@ -356,14 +415,12 @@ function AdminDashboard() {
                           className="btn-action btn-edit"
                         >
                           <FontAwesomeIcon icon={faEdit} />
-                          <span>Editar</span>
                         </button>
                         <button 
                           onClick={() => handleDelete(product.id)}
                           className="btn-action btn-delete"
                         >
                           <FontAwesomeIcon icon={faTrash} />
-                          <span>Eliminar</span>
                         </button>
                       </div>
                     </td>
