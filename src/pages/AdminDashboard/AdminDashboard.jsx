@@ -20,7 +20,7 @@ import {
   deleteProduct 
 } from '../../utils/productService'
 import { formatPrice } from '../../utils/formatters'
-import { getProductImage } from '../../utils/imageUtils' // ✅ NUEVO IMPORT
+import { getProductImage } from '../../utils/imageUtils'
 import { SIZES_BY_CATEGORY } from '../../config/constants'
 import './AdminDashboard.css'
 
@@ -68,12 +68,9 @@ function AdminDashboard() {
   const loadProducts = async () => {
     try {
       setLoading(true)
-      console.log('🔄 Cargando productos desde Firebase...')
       const allProducts = await getAllProducts()
-      console.log('✅ Productos cargados:', allProducts)
       setProducts(allProducts)
     } catch (error) {
-      console.error('Error al cargar productos:', error)
       alert('Error al cargar productos: ' + error.message)
     } finally {
       setLoading(false)
@@ -124,7 +121,7 @@ function AdminDashboard() {
       isFeatured: product.isFeatured || false,
       sizes: Array.isArray(product.sizes) ? product.sizes : []
     })
-    setImagePreview(getProductImage(product)) // ✅ USAR UTILIDAD
+    setImagePreview(getProductImage(product))
     setErrors({})
     setIsModalOpen(true)
   }
@@ -181,7 +178,6 @@ function AdminDashboard() {
     
     if (!file) return
 
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
       setErrors(prev => ({
         ...prev,
@@ -190,7 +186,6 @@ function AdminDashboard() {
       return
     }
 
-    // Validar tamaño (máximo 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setErrors(prev => ({
         ...prev,
@@ -199,7 +194,6 @@ function AdminDashboard() {
       return
     }
 
-    // Leer archivo y crear preview
     const reader = new FileReader()
     reader.onload = (event) => {
       setImagePreview(event.target.result)
@@ -275,9 +269,12 @@ function AdminDashboard() {
       }
     }
 
-    // Validar imagen
     if (!editingProduct && !formData.imageFile) {
       newErrors.image = 'Debes subir una imagen'
+    }
+
+    if (editingProduct && !formData.imageFile && !imagePreview) {
+      newErrors.image = 'Debes mantener o cargar una imagen'
     }
 
     setErrors(newErrors)
@@ -295,7 +292,6 @@ function AdminDashboard() {
       const price = parseFloat(formData.price)
       const discount = formData.discount ? parseFloat(formData.discount) : 0
 
-      // PREPARAR DATOS DEL PRODUCTO
       const productData = {
         brand: formData.brand.trim(),
         model: formData.model.trim(),
@@ -309,15 +305,12 @@ function AdminDashboard() {
         type: 'Tenis'
       }
 
-      // SOLO SI HAY UNA IMAGEN NUEVA, PASAR EL ARCHIVO
       if (formData.imageFile) {
         productData.imageFile = formData.imageFile
-      } else if (editingProduct && !formData.imageFile) {
-        // Si estamos editando y no hay imagen nueva, mantener la existente
-        productData.image = getProductImage(editingProduct) // ✅ USAR UTILIDAD
+      } else if (editingProduct && imagePreview) {
+        productData.image = imagePreview
       }
 
-      // LLAMAR AL SERVICIO
       if (editingProduct) {
         await updateProduct(editingProduct.id, productData)
         alert('✓ Producto actualizado exitosamente')
@@ -329,7 +322,6 @@ function AdminDashboard() {
       await loadProducts()
       closeModal()
     } catch (error) {
-      console.error('Error al guardar producto:', error)
       alert('Error al guardar producto: ' + error.message)
     } finally {
       setSaving(false)
@@ -343,7 +335,6 @@ function AdminDashboard() {
         alert('✓ Producto eliminado exitosamente')
         await loadProducts()
       } catch (error) {
-        console.error('Error al eliminar producto:', error)
         alert('Error al eliminar producto: ' + error.message)
       }
     }
@@ -353,7 +344,6 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashboard">
-      {/* HEADER */}
       <header className="admin-header">
         <div className="container">
           <div className="admin-header-content">
@@ -388,10 +378,8 @@ function AdminDashboard() {
         </div>
       </header>
 
-      {/* CONTENIDO */}
       <div className="admin-content">
         <div className="container">
-          {/* TABLA */}
           <div className="products-table-container">
             <div className="admin-actions">
               <h2 className="section-title">Gestión de Productos</h2>
@@ -436,7 +424,7 @@ function AdminDashboard() {
                     <tr key={product.id}>
                       <td className="product-image-cell">
                         <img 
-                          src={getProductImage(product) || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop'} // ✅ USAR UTILIDAD
+                          src={getProductImage(product) || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop'}
                           alt={product.model}
                           className="product-thumbnail"
                           loading="lazy"
@@ -513,7 +501,6 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* MODAL */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -530,7 +517,6 @@ function AdminDashboard() {
               <div className="modal-body">
                 <div className="product-form">
 
-                  {/* UPLOAD DE IMAGEN */}
                   <div className="form-group">
                     <label className="form-label">Imagen del Producto *</label>
                     <div className="image-upload-container">
@@ -551,7 +537,7 @@ function AdminDashboard() {
                           <div className="upload-content">
                             <FontAwesomeIcon icon={faImage} className="upload-icon" />
                             <span className="upload-text">Haz clic para subir una imagen</span>
-                            <small>o arrastra una aquí</small>
+                            <small>o arrastra aquí</small>
                           </div>
                           <input
                             type="file"
