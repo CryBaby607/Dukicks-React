@@ -22,7 +22,6 @@ function Header() {
     <header className="header">
       <div className="container">
         <div className="header-content">
-          {/* Logo */}
           <div className="logo">
             <Link to="/" onClick={closeMenu}>
               <span className="logo-text">
@@ -32,7 +31,6 @@ function Header() {
             </Link>
           </div>
 
-          {/* Navigation */}
           <nav className={`nav ${isMenuOpen ? 'active' : ''}`}>
             <ul className="nav-list">
               <li>
@@ -58,12 +56,9 @@ function Header() {
             </ul>
           </nav>
 
-            {/* SearchBar (NUEVO) */}
           <SearchBar />
 
-          {/* Icons and Hamburger */}
           <div className="header-controls">
-            {/* Link al carrito */}
             <Link
               to="/cart"
               className="icon-btn cart-btn"
@@ -76,7 +71,6 @@ function Header() {
               )}
             </Link>
 
-            {/* Toggle Menu Mobile */}
             <button
               className={`hamburger ${isMenuOpen ? 'active' : ''}`}
               onClick={toggleMenu}

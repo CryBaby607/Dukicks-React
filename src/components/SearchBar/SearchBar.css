@@ -1,7 +1,3 @@
-/* ============================================
-   SEARCH BAR - ESTADO COLAPSADO
-============================================ */
-
 .search-bar {
   position: relative;
   display: flex;
@@ -10,7 +6,6 @@
   transition: all var(--transition-base);
 }
 
-/* Botón toggle (lupa) cuando está colapsado */
 .search-bar__toggle {
   display: flex;
   align-items: center;
@@ -30,10 +25,6 @@
   color: var(--accent);
   background-color: rgba(255, 255, 255, 0.1);
 }
-
-/* ============================================
-   SEARCH BAR - ESTADO EXPANDIDO
-============================================ */
 
 .search-bar--expanded {
   position: fixed;
@@ -64,10 +55,6 @@
   margin: 0 auto;
   position: relative;
 }
-
-/* ============================================
-   INPUT WRAPPER
-============================================ */
 
 .search-bar__input-wrapper {
   position: relative;
@@ -133,10 +120,6 @@
   color: var(--accent);
   background-color: rgba(58, 134, 255, 0.1);
 }
-
-/* ============================================
-   SUGERENCIAS
-============================================ */
 
 .search-bar__suggestions {
   position: absolute;
@@ -229,35 +212,6 @@
   letter-spacing: 0.3px;
 }
 
-.search-bar__footer {
-  padding: var(--spacing-md);
-  border-top: 1px solid var(--light);
-  background-color: var(--light);
-}
-
-.search-bar__see-all {
-  width: 100%;
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
-  padding: var(--spacing-sm);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  text-align: center;
-  border-radius: var(--radius-md);
-}
-
-.search-bar__see-all:hover {
-  color: var(--secondary);
-  background-color: rgba(58, 134, 255, 0.1);
-}
-
-/* ============================================
-   SIN RESULTADOS
-============================================ */
-
 .search-bar__no-results {
   position: absolute;
   top: calc(100% + 12px);
@@ -279,10 +233,6 @@
   color: var(--gray);
 }
 
-/* ============================================
-   SCROLLBAR PERSONALIZADO
-============================================ */
-
 .search-bar__suggestions::-webkit-scrollbar {
   width: 6px;
 }
@@ -299,10 +249,6 @@
 .search-bar__suggestions::-webkit-scrollbar-thumb:hover {
   background: var(--gray);
 }
-
-/* ============================================
-   RESPONSIVE - TABLET
-============================================ */
 
 @media (max-width: 1024px) {
   .search-bar--expanded {
@@ -322,12 +268,7 @@
   }
 }
 
-/* ============================================
-   RESPONSIVE - MOBILE
-============================================ */
-
 @media (max-width: 768px) {
-  /* En móvil, el SearchBar ocupa toda la pantalla */
   .search-bar--expanded {
     position: fixed;
     top: 0;
@@ -361,7 +302,6 @@
     padding: var(--spacing-sm) 0;
   }
 
-  /* Prevenir zoom en iOS cuando el input está enfocado */
   .search-bar__input {
     font-size: 16px !important;
   }
@@ -376,7 +316,6 @@
     font-size: var(--fs-base);
   }
 
-  /* Sugerencias ocupan el espacio restante */
   .search-bar__suggestions {
     position: relative;
     top: 0;
@@ -404,7 +343,6 @@
     font-size: var(--fs-xs);
   }
 
-  /* Sin resultados en móvil */
   .search-bar__no-results {
     position: relative;
     top: 0;
@@ -418,14 +356,12 @@
 }
 
 @media (max-width: 480px) {
-  /* Toggle button más grande en móviles pequeños */
   .search-bar__toggle {
     width: 40px;
     height: 40px;
     font-size: var(--fs-lg);
   }
 
-  /* Expandido ocupa toda la pantalla */
   .search-bar--expanded {
     padding: var(--spacing-md);
   }
@@ -468,10 +404,6 @@
   }
 }
 
-/* ============================================
-   ACCESIBILIDAD
-============================================ */
-
 .search-bar__toggle:focus-visible,
 .search-bar__close:focus-visible,
 .search-bar__suggestion-item:focus-visible,
@@ -480,14 +412,12 @@
   outline-offset: 2px;
 }
 
-/* Prevenir scroll del body cuando el search está expandido */
 @media (min-width: 769px) {
   body:has(.search-bar--expanded) {
     overflow: hidden;
   }
 }
 
-/* Overlay opcional para oscurecer el fondo (solo desktop) */
 @media (min-width: 769px) {
   .search-bar--expanded::before {
     content: '';

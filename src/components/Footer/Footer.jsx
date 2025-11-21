@@ -1,9 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-    faFacebookF,
-    faInstagram,
-    faTwitter,
-    faTiktok
+  faFacebookF,
+  faInstagram,
+  faTwitter,
+  faTiktok
 } from '@fortawesome/free-brands-svg-icons'
 import './Footer.css'
 
@@ -12,12 +12,10 @@ function Footer() {
 
   return (
     <footer className="footer">
-      {/* Sección principal del footer */}
       <div className="footer-main">
         <div className="container">
           <div className="footer-grid">
-            
-            {/* Columna 1: Información de la marca */}
+
             <div className="footer-column">
               <div className="footer-brand">
                 <h3 className="footer-logo">
@@ -29,8 +27,7 @@ function Footer() {
                   Encuentra las últimas tendencias y los clásicos que nunca pasan de moda.
                 </p>
               </div>
-              
-              {/* Redes sociales */}
+
               <div className="footer-social">
                 <a 
                   href="https://facebook.com" 
@@ -71,7 +68,6 @@ function Footer() {
               </div>
             </div>
 
-            {/* Columna 2: Enlaces rápidos */}
             <div className="footer-column">
               <h4 className="footer-title">Enlaces rápidos</h4>
               <ul className="footer-links">
@@ -90,7 +86,6 @@ function Footer() {
               </ul>
             </div>
 
-            {/* Columna 3: Ayuda */}
             <div className="footer-column">
               <h4 className="footer-title">Ayuda</h4>
               <ul className="footer-links">
@@ -113,7 +108,6 @@ function Footer() {
         </div>
       </div>
 
-      {/* Sección inferior del footer */}
       <div className="footer-bottom">
         <div className="container">
           <div className="footer-bottom-content">

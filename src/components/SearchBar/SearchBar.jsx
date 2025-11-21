@@ -172,11 +172,11 @@ function SearchBar() {
                       type="button"
                       className="search-bar__suggestion-item"
                       onClick={() => handleSelectProduct(product.id)}
-                      aria-label={`Ver ${getProductName(product)}`} // ✅ USAR UTILIDAD
+                      aria-label={`Ver ${getProductName(product)}`}
                     >
                       <img 
-                        src={getProductImage(product)} // ✅ USAR UTILIDAD
-                        alt={getProductName(product)} // ✅ USAR UTILIDAD
+                        src={getProductImage(product)}
+                        alt={getProductName(product)}
                         className="search-bar__suggestion-image"
                         loading="lazy"
                       />
@@ -192,18 +192,6 @@ function SearchBar() {
                   </li>
                 ))}
               </ul>
-              
-              {searchTerm && (
-                <div className="search-bar__footer">
-                  <button
-                    type="submit"
-                    className="search-bar__see-all"
-                    aria-label={`Ver todos los resultados de "${searchTerm}"`}
-                  >
-                    Ver todos los resultados ({suggestions.length}+)
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
