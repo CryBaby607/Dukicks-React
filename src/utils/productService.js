@@ -225,19 +225,3 @@ export const getNewProducts = async () => {
     throw error
   }
 }
-
-export const searchProducts = async (query_text) => {
-  try {
-    const allProducts = await getAllProducts()
-    const lowerQuery = query_text.toLowerCase()
-    
-    return allProducts.filter(p =>
-      p.brand?.toLowerCase().includes(lowerQuery) ||
-      p.model?.toLowerCase().includes(lowerQuery) ||
-      p.description?.toLowerCase().includes(lowerQuery)
-    )
-  } catch (error) {
-    console.error('Error al buscar productos:', error)
-    throw error
-  }
-}
