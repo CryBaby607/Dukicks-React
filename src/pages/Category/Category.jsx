@@ -10,7 +10,6 @@ function CategoryPage({ category }) {
   const [sortBy, setSortBy] = useState('newest')
   const [products, setProducts] = useState([])
 
-  // Cargar productos de la categoría
   useEffect(() => {
     loadCategoryProducts()
   }, [category])
@@ -25,18 +24,15 @@ function CategoryPage({ category }) {
     }
   }
 
-  // Obtener marcas únicas (memoizado)
   const brandsInCategory = useMemo(
     () => getUniqueBrands(products, true),
     [products]
   )
 
-  // Aplicar filtros (memoizado)
   const filteredProducts = useMemo(() => {
     return applyFilters(products, { brand: selectedBrand })
   }, [products, selectedBrand])
 
-  // Aplicar ordenamiento (memoizado)
   const sortedProducts = useMemo(() => {
     return sortProducts(filteredProducts, sortBy)
   }, [filteredProducts, sortBy])
@@ -45,11 +41,7 @@ function CategoryPage({ category }) {
     <div className="category-page">
       <div className="container">
         <div className="category-wrapper">
-          
-          {/* ===== SIDEBAR: FILTROS ===== */}
           <aside className="category-sidebar">
-            
-            {/* Filtro de Marca */}
             <div className="filter-section">
               <h3 className="filter-title">Marcas</h3>
               <div className="filter-brands">
@@ -71,7 +63,6 @@ function CategoryPage({ category }) {
               </div>
             </div>
 
-            {/* Ordenamiento */}
             <div className="filter-section">
               <h3 className="filter-title">Ordenar Por</h3>
               <select
@@ -89,17 +80,13 @@ function CategoryPage({ category }) {
             </div>
           </aside>
 
-          {/* ===== CONTENIDO PRINCIPAL ===== */}
           <section className="category-content">
-            
-            {/* Info de productos */}
             <div className="products-info">
               <p className="products-count">
                 Mostrando {sortedProducts.length} de {products.length} productos
               </p>
             </div>
 
-            {/* ===== GRID DE PRODUCTOS ===== */}
             <div className="category-products-grid">
               {sortedProducts.length > 0 ? (
                 sortedProducts.map(product => (

@@ -7,7 +7,6 @@ import './Home.css'
 function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([])
 
-  // Cargar productos destacados al montar
   useEffect(() => {
     loadFeaturedProducts()
   }, [])
@@ -17,7 +16,6 @@ function Home() {
     setFeaturedProducts(products)
   }
 
-  // Datos de categorías
   const categories = [
     {
       id: 1,
@@ -41,8 +39,6 @@ function Home() {
 
   return (
     <div className="home">
-      
-      {/* ===== HERO SECTION ===== */}
       <section className="hero">
         <div className="hero-content">
           <div className="container">
@@ -61,13 +57,11 @@ function Home() {
         </div>
       </section>
 
-      {/* ===== PRODUCTOS DESTACADOS ===== */}
       <section className="featured-section">
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Productos Destacados</h2>
           </div>
-          {/* Products Grid */}
           <div className="products-grid">
             {featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
@@ -78,18 +72,11 @@ function Home() {
                   showCategory={true}
                 />
               ))
-            ) : (
-              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
-                <p style={{ fontSize: '18px', color: '#6c757d' }}>
-                  No hay productos destacados disponibles
-                </p>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       </section>
 
-      {/* ===== CATEGORÍAS ===== */}
       <section className="categories-section">
         <div className="container">
           <div className="section-header">
@@ -120,7 +107,6 @@ function Home() {
         </div>
       </section>
 
-      {/* ===== ABOUT US ===== */}
       <section className="about-us">
         <div className="container">
           <div className="about-content">
