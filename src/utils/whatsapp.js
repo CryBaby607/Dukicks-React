@@ -5,7 +5,6 @@ export const generateWhatsAppMessage = (cartItems, total) => {
 
   let message = '*🛍️ PEDIDO DUKICKS*\n\n'
   
-  // Listar productos
   cartItems.forEach((item, index) => {
     message += `${index + 1}. *${item.name}*\n`
     message += `   Talla: ${item.size || 'N/A'}\n`
@@ -14,7 +13,6 @@ export const generateWhatsAppMessage = (cartItems, total) => {
     message += `   Subtotal: $${(item.price * item.quantity).toLocaleString()}\n\n`
   })
 
-  // Total
   message += `━━━━━━━━━━━━━━━━\n`
   message += `*TOTAL: $${total.toLocaleString()} MXN*\n\n`
   message += `_Gracias por tu preferencia_ 🙌`
@@ -24,9 +22,8 @@ export const generateWhatsAppMessage = (cartItems, total) => {
 
 export const generateWhatsAppURL = (phoneNumber, cartItems, total) => {
   const message = generateWhatsAppMessage(cartItems, total)
-  const cleanPhone = phoneNumber.replace(/\D/g, '') // Remover caracteres no numéricos
+  const cleanPhone = phoneNumber.replace(/\D/g, '') 
   
-  // Detectar si es móvil o desktop
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   
   if (isMobile) {
@@ -43,15 +40,12 @@ export const sendOrderViaWhatsApp = (phoneNumber, cartItems, total) => {
 
 export const validatePhoneNumber = (phone) => {
   const cleaned = phone.replace(/\D/g, '')
-  // México: 10 dígitos o 52 + 10 dígitos
   return cleaned.length === 10 || (cleaned.length === 12 && cleaned.startsWith('52'))
 }
-
 
 export const formatPhoneForWhatsApp = (phone) => {
   let cleaned = phone.replace(/\D/g, '')
   
-  // Si es número mexicano de 10 dígitos, agregar código de país
   if (cleaned.length === 10) {
     cleaned = '52' + cleaned
   }
