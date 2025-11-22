@@ -5,7 +5,7 @@ import {
   faEdit, 
   faTrash, 
   faSignOutAlt, 
-  faTimes,
+  faTimes, 
   faBoxOpen,
   faSpinner,
   faImage,
@@ -23,6 +23,7 @@ import { formatPrice } from '../../utils/formatters'
 import { getProductImage } from '../../utils/imageUtils'
 import { SIZES_BY_CATEGORY } from '../../config/constants'
 import { validateImageFile } from '../../validators/imageValidator'
+import { handleError } from '../../services/errorService'
 import './AdminDashboard.css'
 
 function AdminDashboard() {
@@ -72,7 +73,7 @@ function AdminDashboard() {
       const allProducts = await getAllProducts()
       setProducts(allProducts)
     } catch (error) {
-      alert('Error al cargar productos: ' + error.message)
+      alert(handleError(error, 'Cargando Productos'))
     } finally {
       setLoading(false)
     }
@@ -176,10 +177,8 @@ function AdminDashboard() {
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0]
-    
     if (!file) return
 
-    // Usar el validador centralizado
     const validationError = validateImageFile(file)
     if (validationError) {
       setErrors(prev => ({
@@ -215,7 +214,6 @@ function AdminDashboard() {
   const handleSizeToggle = (size) => {
     setFormData(prev => {
       const isSelected = prev.sizes.includes(size)
-      
       if (isSelected) {
         return {
           ...prev,
@@ -317,7 +315,7 @@ function AdminDashboard() {
       await loadProducts()
       closeModal()
     } catch (error) {
-      alert('Error al guardar producto: ' + error.message)
+      alert(handleError(error, 'Guardando Producto'))
     } finally {
       setSaving(false)
     }
@@ -330,7 +328,7 @@ function AdminDashboard() {
         alert('✓ Producto eliminado exitosamente')
         await loadProducts()
       } catch (error) {
-        alert('Error al eliminar producto: ' + error.message)
+        alert(handleError(error, 'Eliminando Producto'))
       }
     }
   }

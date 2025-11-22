@@ -5,6 +5,7 @@ import {
   onAuthStateChanged
 } from 'firebase/auth'
 import { auth } from '../config/firebase'
+import { handleError } from '../services/errorService'
 
 const AdminContext = createContext()
 
@@ -33,9 +34,9 @@ export const AdminProvider = ({ children }) => {
       setAdminUser(result.user)
       return result.user
     } catch (error) {
-      const errorMessage = handleFirebaseError(error.code)
-      setError(errorMessage)
-      throw new Error(errorMessage)
+      const message = handleError(error, 'AdminLogin')
+      setError(message)
+      throw new Error(message)
     }
   }
 
@@ -45,28 +46,13 @@ export const AdminProvider = ({ children }) => {
       await signOut(auth)
       setAdminUser(null)
     } catch (error) {
-      const errorMessage = handleFirebaseError(error.code)
-      setError(errorMessage)
-      throw new Error(errorMessage)
+      const message = handleError(error, 'AdminLogout')
+      setError(message)
+      throw new Error(message)
     }
   }
 
   const isAdminAuthenticated = () => !!adminUser
-
-  const handleFirebaseError = (code) => {
-    const errors = {
-      'auth/user-not-found': 'Usuario no encontrado',
-      'auth/wrong-password': 'Contraseña incorrecta',
-      'auth/invalid-email': 'Correo electrónico inválido',
-      'auth/user-disabled': 'Usuario deshabilitado',
-      'auth/too-many-requests': 'Demasiados intentos. Intenta más tarde',
-      'auth/weak-password': 'La contraseña es muy débil (mínimo 6 caracteres)',
-      'auth/email-already-in-use': 'El correo ya está registrado',
-      'auth/operation-not-allowed': 'Operación no permitida',
-      'auth/invalid-credential': 'Credenciales inválidas'
-    }
-    return errors[code] || 'Error de autenticación. Intenta de nuevo.'
-  }
 
   const value = {
     adminUser,
