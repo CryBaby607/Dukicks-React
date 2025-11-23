@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faTimes } from '@fortawesome/free-solid-svg-icons'
-// ✅ CAMBIO: Importar desde services/product
+// ✅ CORRECCIÓN: Importar desde el nuevo servicio
 import { getAllProducts } from '../../services/product'
 import { searchProductsWithRelevance } from '../../utils/search'
 import { useDebounce } from '../../hooks/useDebounce'
@@ -37,6 +37,7 @@ function SearchBar() {
     loadAllProducts()
   }, [])
 
+  // ... (Resto del componente permanece igual)
   useEffect(() => {
     if (debouncedSearchTerm.trim().length === 0) {
       setSuggestions([])

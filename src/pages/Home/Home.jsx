@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-// ✅ CAMBIO: Importar desde services/product
+// ✅ CORRECCIÓN: Importar desde el nuevo servicio
 import { getFeaturedProducts } from '../../services/product'
 import ProductCard from '../../components/ProductCard/ProductCard'
 import './Home.css'
@@ -13,8 +13,12 @@ function Home() {
   }, [])
 
   const loadFeaturedProducts = async () => {
-    const products = await getFeaturedProducts()
-    setFeaturedProducts(products)
+    try {
+      const products = await getFeaturedProducts()
+      setFeaturedProducts(products)
+    } catch (error) {
+      console.error("Error loading featured:", error)
+    }
   }
 
   const categories = [
