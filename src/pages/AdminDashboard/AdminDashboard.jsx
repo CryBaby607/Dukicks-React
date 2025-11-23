@@ -21,9 +21,12 @@ import {
 } from '../../services/product'
 import { formatPrice } from '../../utils/formatters'
 import { getProductImage } from '../../utils/imageUtils'
-import { SIZES, PRODUCT_CATEGORIES } from '../../constants/messages'
+// CAMBIO: Importación desde el nuevo archivo de constantes centralizado
+import { SIZES, PRODUCT_CATEGORIES } from '../../constants/product.constants' 
 
-import { validateImageFile } from '../../validators/imageValidator'
+// Nota: Asegúrate de haber movido imageValidator a la carpeta helpers como sugerí, 
+// o ajusta esta ruta si decidiste dejarlo en validators.
+import { validateImageFile } from '../../helpers/validation' 
 import { handleError } from '../../services/errorService'
 import './AdminDashboard.css'
 
@@ -157,6 +160,7 @@ function AdminDashboard() {
         [name]: type === 'checkbox' ? checked : value
       }
 
+      // Lógica para limpiar o asignar tallas según categoría
       if (name === "category") {
         if (value === PRODUCT_CATEGORIES.GORRAS) {
           updated.sizes = ['Única']

@@ -1,4 +1,4 @@
-import { calculateItemSubtotal } from '../utils/calculations'
+import { calculateItemSubtotal } from '../helpers/calculations'
 
 export const generateWhatsAppMessage = (cartItems, total) => {
   if (!cartItems || cartItems.length === 0) {

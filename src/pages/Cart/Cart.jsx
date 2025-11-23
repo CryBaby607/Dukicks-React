@@ -4,19 +4,11 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
 import { formatPrice } from '../../utils/formatters'
 import { sendOrderViaWhatsApp } from '../../services/whatsapp'
+import { APP_CONFIG } from '../../constants/app' //
 import './Cart.css'
 
 function Cart() {
   const { cartItems, updateQuantity, removeFromCart, subtotal, total, itemCount } = useCart()
-
-  const BUSINESS_PHONE = '5219611567875' // Formato: 52 + 10 dígitos
-
-  const handleQuantityChange = (productId, size, newQuantity) => {
-    const quantity = parseInt(newQuantity, 10)
-    if (quantity > 0 && quantity <= 99) {
-      updateQuantity(productId, size, quantity)
-    }
-  }
 
   const handleWhatsAppCheckout = () => {
     if (cartItems.length === 0) {
@@ -24,7 +16,14 @@ function Cart() {
       return
     }
 
-    sendOrderViaWhatsApp(BUSINESS_PHONE, cartItems, total)
+    sendOrderViaWhatsApp(APP_CONFIG.BUSINESS_PHONE, cartItems, total)
+  }
+
+  const handleQuantityChange = (productId, size, newQuantity) => {
+    const quantity = parseInt(newQuantity, 10)
+    if (quantity > 0 && quantity <= 99) {
+      updateQuantity(productId, size, quantity)
+    }
   }
 
   if (cartItems.length === 0) {
@@ -53,7 +52,6 @@ function Cart() {
         <h1 className="page-title">Carrito de Compras</h1>
         
         <div className="cart-wrapper">
-          {/* Sección de items */}
           <section className="cart-items-section">
             <div className="cart-items-header">
               <span className="header-products">Productos</span>
