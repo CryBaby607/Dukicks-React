@@ -21,8 +21,8 @@ import {
 } from '../../services/product'
 import { formatPrice } from '../../utils/formatters'
 import { getProductImage } from '../../utils/imageUtils'
-// ✅ CORRECCIÓN: Importar desde 'product' (singular) para coincidir con tu archivo real
-import { SIZES, PRODUCT_CATEGORIES } from '../../constants/product'
+import { SIZES, PRODUCT_CATEGORIES } from '../../constants/messages'
+
 import { validateImageFile } from '../../validators/imageValidator'
 import { handleError } from '../../services/errorService'
 import './AdminDashboard.css'
