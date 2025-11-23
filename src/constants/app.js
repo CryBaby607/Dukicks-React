@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
-  NAME: 'DUKICKS',
-  BUSINESS_PHONE: '5219611567875',
+  NAME: import.meta.env.VITE_APP_NAME || 'DUKICKS',
+  BUSINESS_PHONE: import.meta.env.VITE_WHATSAPP_NUMBER, 
   CURRENCY: 'MXN',
   LOCALE: 'es-MX'
 }
