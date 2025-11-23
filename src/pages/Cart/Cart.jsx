@@ -4,7 +4,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
 import { formatPrice } from '../../utils/formatters'
 import { sendOrderViaWhatsApp } from '../../services/whatsapp'
-import { APP_CONFIG } from '../../constants/app' //
+import { APP_CONFIG } from '../../constants/app'
 import './Cart.css'
 
 function Cart() {

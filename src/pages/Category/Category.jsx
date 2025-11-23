@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react'
-// ✅ CORRECCIÓN: Importar desde el nuevo servicio
 import { getProductsByCategory } from '../../services/product'
 import { sortProducts, getSortOptions } from '../../utils/sorting'
 import { getUniqueBrands, applyFilters } from '../../utils/filters'

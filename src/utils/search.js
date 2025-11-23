@@ -1,5 +1,4 @@
 export const searchProductsWithRelevance = (products, query) => {
-  // Fix: Guard against undefined/null query
   if (!Array.isArray(products) || !query?.trim()) return products
 
   const normalizedQuery = query.toLowerCase().trim()

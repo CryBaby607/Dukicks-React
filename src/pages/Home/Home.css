@@ -1,4 +1,3 @@
-/* ===== GENERAL ===== */
 .home {
   min-height: 100vh;
 }
@@ -330,7 +329,6 @@
   letter-spacing: 0.5px;
 }
 
-/* ===== MEDIA QUERIES ===== */
 @media (max-width: 1024px) {
   .hero {
     height: 500px;
