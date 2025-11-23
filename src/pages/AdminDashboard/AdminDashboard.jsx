@@ -8,7 +8,7 @@ import { useAdmin } from '../../context/AdminContext'
 import { useNavigate } from 'react-router-dom'
 import { 
   getAllProducts, createProduct, updateProduct, deleteProduct 
-} from '../../constants/product'
+} from '../../services/product'
 import { formatPrice } from '../../utils/formatters'
 import { getProductImage } from '../../utils/imageUtils'
 // ✅ CAMBIO: Nuevos imports de constantes

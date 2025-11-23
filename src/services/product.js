@@ -11,13 +11,16 @@ import {
   orderBy
 } from 'firebase/firestore'
 import { db } from '../config/firebase'
-import { uploadImageToCloudinary } from '../services/image'
-// ✅ NUEVO IMPORT
-import { COLLECTIONS } from './firebase'
+import { uploadImageToCloudinary } from './image'
+// ✅ IMPORTANTE: Importamos las constantes nuevas
+import { COLLECTIONS } from '../constants/firebase'
+
+// ❌ YA NO USAMOS ESTO: const PRODUCTS_COLLECTION = 'products'
 
 export const getAllProducts = async () => {
   try {
     const q = query(
+      // ✅ Solución del error: Usamos COLLECTIONS.PRODUCTS
       collection(db, COLLECTIONS.PRODUCTS),
       orderBy('createdAt', 'desc')
     )
