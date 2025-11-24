@@ -1,15 +1,5 @@
-import * as Sentry from "@sentry/react" // <--- AGREGADO
-
 export const handleError = (error, context = '') => {
   console.error(`Error en [${context}]:`, error)
-
-  // ✅ AGREGADO: Enviar error a Sentry
-  Sentry.captureException(error, {
-    tags: {
-      context,
-      timestamp: new Date().toISOString()
-    }
-  })
 
   if (error.message && !error.code) {
     return error.message
