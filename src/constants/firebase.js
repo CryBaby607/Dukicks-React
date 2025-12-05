@@ -1,7 +1,8 @@
 export const COLLECTIONS = {
   PRODUCTS: 'products',
   USERS: 'users',
-  ORDERS: 'orders'
+  ORDERS: 'orders',
+  STAFF: 'staff' 
 }
 
 export const STORAGE_PATHS = {
