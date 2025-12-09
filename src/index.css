@@ -1,0 +1,234 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-text text-base font-normal leading-relaxed text-dark-gray bg-white overflow-x-hidden;
+  }
+
+  #root {
+    @apply min-h-screen flex flex-col;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2.5 h-2.5;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-light;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-dark-gray;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-secondary text-white;
+  }
+
+  /* Typography base */
+  h1 {
+    @apply font-title text-5xl font-bold leading-tight my-md text-primary;
+  }
+
+  h2 {
+    @apply font-title text-4xl font-bold leading-tight my-md text-primary;
+  }
+
+  h3 {
+    @apply font-title text-3xl font-semibold leading-snug my-md text-primary;
+  }
+
+  h4 {
+    @apply font-title text-2xl font-semibold leading-normal my-sm text-primary;
+  }
+
+  h5 {
+    @apply font-title text-xl font-semibold leading-normal my-sm text-primary;
+  }
+
+  h6 {
+    @apply font-title text-lg font-semibold leading-relaxed my-sm text-primary;
+  }
+
+  p {
+    @apply font-text text-base font-normal leading-relaxed my-md text-dark-gray;
+  }
+
+  a {
+    @apply font-text text-secondary no-underline transition-colors duration-base;
+  }
+
+  a:hover {
+    @apply text-accent underline;
+  }
+
+  button {
+    @apply cursor-pointer border-none font-semibold rounded-md transition-all duration-base text-base px-lg py-sm;
+  }
+
+  button:active {
+    @apply scale-[0.98];
+  }
+
+  button:disabled {
+    @apply opacity-60 cursor-not-allowed;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply font-text text-base border border-gray rounded-md px-md py-sm transition-all duration-base;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none border-secondary ring-4 ring-secondary/10;
+  }
+
+  textarea {
+    @apply resize-y min-h-[120px];
+  }
+
+  img {
+    @apply max-w-full h-auto block;
+  }
+}
+
+@layer components {
+  .container {
+    @apply max-w-[1200px] mx-auto px-lg;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      @apply px-md;
+    }
+  }
+
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center font-text text-base font-semibold no-underline px-xl py-md rounded-md transition-all duration-base cursor-pointer border-2 border-transparent;
+  }
+
+  .btn-primary {
+    @apply bg-accent text-white border-accent hover:bg-secondary hover:border-secondary hover:shadow-lg hover:no-underline;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-primary border-primary hover:bg-primary hover:text-white hover:no-underline;
+  }
+
+  .btn-whatsapp {
+    @apply flex items-center gap-2;
+  }
+
+  /* Utility classes */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+  }
+}
+
+@layer utilities {
+  /* Custom animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes expandSearchBar {
+    from {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes movePattern {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(50px, 50px);
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.2s ease-out;
+  }
+
+  .animate-expand-search {
+    animation: expandSearchBar 0.3s ease-out;
+  }
+
+  .animate-move-pattern {
+    animation: movePattern 20s linear infinite;
+  }
+
+  .animate-spin-custom {
+    animation: spin 1s linear infinite;
+  }
+}
